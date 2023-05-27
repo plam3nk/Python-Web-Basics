@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% load my_filters %}
+{% load my_tags %}
+
+{% block page_content %}
+
+<h1>{{ title | upper }}</h1>
+<p>{{ random_int }}</p>
+<p>{{ nested.second_title }}</p>
+<p>{{ student_age }}</p>
+
+<div>
+    Menu: {{ title | lower }}
+</div>
+
+<section>
+    <div>{{ students | join:', ' }}</div>
+    <div>{{ now | date:'Y-m-d' }}</div>
+</section>
+
+<section>
+    <h2>IFS</h2>
+    <div>{{ students|join:', ' }}</div>
+    {% if students_second %}
+        <div>{{ students_second | join:', ' }}</div>
+    {% elif students_second|length > 5 %}
+        <div>Cant get here</div>
+    {% else %}
+        <div>No students</div>
+    {% endif %}
+</section>
+
+<section>
+    <h2>FOR LOOPS</h2>
+
+    <ul>
+    {% for student in students %}
+        <li>{{ student }}</li>
+    {% endfor %}
+    </ul>
+
+    <ul>
+    {% for student in students_second %}
+        <li>{{ student }}</li>
+        {% empty %}
+        <li>No students(empty)</li>
+    {% endfor %}
+    </ul>
+
+    <ul>
+    {% for student in students %}
+        {% ifchanged %}
+            <li>{{ student }}</li>
+        {% endifchanged %}
+    {% endfor %}
+    </ul>
+</section>
+
+<section>
+    {# this is a token (NOT VISIBLE TO USER)#}
+    <div>{{ csrf_token }}</div>
+    <div>
+        {% csrf_token %}
+    </div>
+
+    {% comment %}
+    multiline
+    comment
+    !
+    !>_<!
+    NOT VISIBLE TO USER!
+    <!-- HTML COMMENT --> (VISBILE TO USER)
+    {% endcomment %}
+</section>
+
+<section>
+    <div>Without filter: {{ numbers }}</div>
+    <div>With odd custom filter: {{ numbers | odd }}</div>
+</section>
+
+<section>
+    <ul class="list-group">
+        {% for student in students_obj %}
+            <li class="list-group-item">{% show_student_info student %}</li>
+            <li class="list-group-item">All students: {% show_student_names student student student %}</li>
+
+        {% endfor %}
+    </ul>
+    <hr>
+    <ul>
+        {% for student in students_obj %}
+            <li>{% fancy student %}</li>
+        {% endfor %}
+    </ul>
+</section>
+
+<section>
+    {% include 'examples/partials/another.html' %}
+</section>
+
+{% endblock %}
