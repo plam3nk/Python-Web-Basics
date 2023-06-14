@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Model forms
+{% endblock %}
+
+{% block content %}
+    <form method="post" action="{% url 'model forms' %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button>Create</button>
+    </form>
+{% endblock %}
