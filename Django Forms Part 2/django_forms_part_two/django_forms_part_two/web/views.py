@@ -2,63 +2,25 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+
+from django_forms_part_two.web.forms import TodoCreateForm, TodoForm, PersonCreateForm
+from django_forms_part_two.web.models import Person
+from django_forms_part_two.web.validators import validate_text, ValueInRangeValidator
 
 
 # Create your views here.
-def validate_text(value):
-    # if valid:
-    # do nothing
-    # else:
-    # raise ValidationException()
-    if '_' in value:
-        raise ValidationError('"_" is invalid character for "text"!')
-
-
-def validate_priority(value):
-    if value < 1 or value > 10:
-        raise ValidationError('Priority must be between 1 and 10!')
-
-
-class TodoForm(forms.Form):
-    text = forms.CharField(
-        max_length=30,
-        validators=(
-            validate_text,
-        ),
-    )
-
-    is_done = forms.BooleanField(
-        required=False,
-    )
-
-    priority = forms.IntegerField(
-        validators=(
-            # validate_priority
-            MinValueValidator(1),
-            MaxValueValidator(10)
-        ),
-    )
-    # Auto complete
-
-    # def clean_text(self):
-    #     pass
-    #
-    # def clean_priority(self):
-    #     pass
-    #     # raise ValidationError('Error! Number must be between 1 and 10')
-    #
-    # def clean_is_done(self):
-    #     pass
-
 
 def index(request):
+    form_class = TodoForm
+
     if request.method == 'GET':
-        form = TodoForm()
+        form = form_class()
     else:
-        form = TodoForm(request.POST)
+        form = form_class(request.POST)
 
         if form.is_valid():
+            # form.save()
             return HttpResponse('All is valid')
 
     context = {
@@ -66,3 +28,27 @@ def index(request):
     }
 
     return render(request, 'index.html', context=context)
+
+
+def list_persons(request):
+    context = {
+        'persons': Person.objects.all(),
+    }
+
+    return render(request, 'list-persons.html', context=context)
+
+
+def create_person(request):
+    if request.method == 'GET':
+        form = PersonCreateForm
+    else:
+        form = PersonCreateForm(request.POST, request.FILES)
+        if form.is_valid:
+            form.save()
+            return redirect('list persons')
+
+    context = {
+        'form': form
+    }
+
+    return render(request, 'create-person.html', context=context)
